@@ -11,6 +11,18 @@ auto main() -> int {
 	g.insert_node("you?");
 
 	g.insert_edge("hello", "how", 5);
+	g.insert_edge("hello", "hello", 3);
+
+	auto test = std::vector<int>{};
+	auto it = test.begin();
+	if (it == test.end()) {
+		std::cout << "OK\n";
+	}
+	else {
+		std::cout << "NOT OK\n";
+	}
+
+	/*g.insert_edge("hello", "how", 5);
 	g.insert_edge("hello", "are", 8);
 	g.insert_edge("hello", "are", 2);
 
@@ -29,6 +41,6 @@ auto main() -> int {
 	// https://en.cppreference.com/w/cpp/language/structured_binding
 	// It allows you to unpack your tuple.
 	for (auto const& [from, to, weight] : g) {
-		std::cout << from << " -> " << to << " (weight " << weight << ")\n";
-	}
+	   std::cout << from << " -> " << to << " (weight " << weight << ")\n";
+	}*/
 }
