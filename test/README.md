@@ -1,0 +1,4 @@
+# Testing Rationale
+My testing rationale was similar to assignment 2. I split up each test code block according which function was being tested. That way I can ensure that every function was tested and nothing was forgotten or left out.
+In some cases a few functions were tested together as either testing them apart was difficult (i.e. begin() and end() functions) or it did not require extensive testing and could be combined together for a neater and cleaner look.
+Although functions are cross-used between each test case, each individual function also is individually tested to ensure that the functions used are likely correct. (i.e. using is_node() to test insert_node())
