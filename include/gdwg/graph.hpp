@@ -295,7 +295,7 @@ namespace gdwg {
 		else {
 			edge = std::make_shared<E>(weight);
 		}
-		auto tuple_edge = adj_tuple{get_node(src), get_node(dst), edge};
+		auto const tuple_edge = adj_tuple{get_node(src), get_node(dst), edge};
 		adj_list_.push_back(tuple_edge);
 		std::sort(adj_list_.begin(), adj_list_.end(), tuple_sort);
 		return true;
@@ -409,7 +409,7 @@ namespace gdwg {
 	template<typename N, typename E>
 	auto graph<N, E>::get_edge(E const& value) const -> std::shared_ptr<E> {
 		for (auto tuple : adj_list_) {
-			auto edge = std::get<2>(tuple);
+			auto const edge = std::get<2>(tuple);
 			if (*edge == value) {
 				return edge;
 			}
@@ -420,7 +420,7 @@ namespace gdwg {
 	template<typename N, typename E>
 	auto graph<N, E>::is_edge(E const& value) const -> bool {
 		for (auto tuple : adj_list_) {
-			auto edge = std::get<2>(tuple);
+			auto const edge = std::get<2>(tuple);
 			if (*edge == value) {
 				return true;
 			}

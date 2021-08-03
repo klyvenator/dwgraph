@@ -7,7 +7,7 @@
 
 TEST_CASE("CONSTRUCTOR - No args") {
 	SECTION("Can be instantiated and is empty") {
-		auto g = gdwg::graph<std::string, int>{};
+		auto const g = gdwg::graph<std::string, int>{};
 		CHECK(g.empty() == true);
 	}
 	SECTION("Can insert nodes & edges") {
@@ -22,8 +22,8 @@ TEST_CASE("CONSTRUCTOR - No args") {
 
 TEST_CASE("CONSTRUCTOR - Initializer list") {
 	SECTION("Node correctly inserted") {
-		auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
-		auto g = gdwg::graph<std::string, int>{list};
+		auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+		auto const g = gdwg::graph<std::string, int>{list};
 		CHECK(g.is_node("hello") == true);
 		CHECK(g.is_node("goodbye") == true);
 		CHECK(g.is_node("hi") == true);
@@ -37,8 +37,8 @@ TEST_CASE("CONSTRUCTOR - Initializer list") {
 
 TEST_CASE("CONSTRUCTOR - InputIt") {
 	SECTION("Node correctly inserted") {
-		auto list = std::vector<std::string>{"hello", "goodbye", "hi"};
-		auto g = gdwg::graph<std::string, int>{list.begin(), list.end()};
+		auto const list = std::vector<std::string>{"hello", "goodbye", "hi"};
+		auto const g = gdwg::graph<std::string, int>{list.begin(), list.end()};
 		CHECK(g.is_node("hello") == true);
 		CHECK(g.is_node("goodbye") == true);
 		CHECK(g.is_node("hi") == true);
@@ -51,14 +51,13 @@ TEST_CASE("CONSTRUCTOR - InputIt") {
 	}
 }
 
-// Test with find after implemented
 TEST_CASE("COPY CONSTRUCTOR") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
 	g.insert_edge("hello", "hi", 4);
-	auto g2 = g;
+	auto const g2 = g;
 
 	SECTION("Contains the same nodes") {
 		CHECK(g2.is_node("hello") == true);
@@ -67,12 +66,14 @@ TEST_CASE("COPY CONSTRUCTOR") {
 	}
 
 	SECTION("Contains the same edges") {
-		// To be implemented
+		CHECK(g2.find("hello", "goodbye", 2) != g.end());
+		CHECK(g2.find("hello", "goodbye", 3) != g.end());
+		CHECK(g2.find("hello", "hi", 4) != g.end());
 	}
 }
 
 TEST_CASE("COPY ASSIGNMENT") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -88,12 +89,14 @@ TEST_CASE("COPY ASSIGNMENT") {
 	}
 
 	SECTION("Contains the same edges") {
-		// To be implemented
+		CHECK(g2.find("hello", "goodbye", 2) != g.end());
+		CHECK(g2.find("hello", "goodbye", 3) != g.end());
+		CHECK(g2.find("hello", "hi", 4) != g.end());
 	}
 }
 
 TEST_CASE("MOVE CONSTRUCTOR") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -105,6 +108,11 @@ TEST_CASE("MOVE CONSTRUCTOR") {
 		CHECK(g2.is_node("goodbye") == true);
 		CHECK(g2.is_node("hi") == true);
 	}
+	SECTION("Contains the same edges") {
+		CHECK(g2.find("hello", "goodbye", 2) != g2.end());
+		CHECK(g2.find("hello", "goodbye", 3) != g2.end());
+		CHECK(g2.find("hello", "hi", 4) != g2.end());
+	}
 }
 
 TEST_CASE("MOVE ASSIGNMENT") {
@@ -115,18 +123,24 @@ TEST_CASE("MOVE ASSIGNMENT") {
 	g.insert_edge("hello", "goodbye", 3);
 	g.insert_edge("hello", "hi", 4);
 	g2 = gdwg::graph<std::string, int>{std::move(g)};
+
 	SECTION("Node correctly inserted") {
 		CHECK(g2.is_node("hello") == true);
 		CHECK(g2.is_node("goodbye") == true);
 		CHECK(g2.is_node("hi") == true);
 	}
+	SECTION("Contains the same edges") {
+		CHECK(g2.find("hello", "goodbye", 2) != g2.end());
+		CHECK(g2.find("hello", "goodbye", 3) != g2.end());
+		CHECK(g2.find("hello", "hi", 4) != g2.end());
+	}
 }
 
 TEST_CASE("OPERATOR ==") {
 	SECTION("Node Comparison") {
-		auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+		auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 		auto g = gdwg::graph<std::string, int>{list};
-		auto list2 = std::initializer_list<std::string>{"hello"};
+		auto const list2 = std::initializer_list<std::string>{"hello"};
 		auto g2 = gdwg::graph<std::string, int>{list2};
 		CHECK((g == g2) == false);
 		g2.insert_node("goodbye");
@@ -136,9 +150,8 @@ TEST_CASE("OPERATOR ==") {
 		g2.insert_node("lol2");
 		CHECK((g == g2) == false);
 	}
-
 	SECTION("Edge Comparison") {
-		auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+		auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 		auto g = gdwg::graph<std::string, int>{list};
 
 		g.insert_edge("hello", "goodbye", 2);
@@ -153,7 +166,6 @@ TEST_CASE("OPERATOR ==") {
 		g.erase_edge("hello", "goodbye", 2);
 		CHECK((g == g2) == false);
 	}
-
 	SECTION("Empty comparison") {
 		auto const g = gdwg::graph<std::string, int>{};
 		auto const g2 = gdwg::graph<std::string, int>{};
@@ -162,7 +174,7 @@ TEST_CASE("OPERATOR ==") {
 }
 
 TEST_CASE("INSERT NODE") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	SECTION("Node correctly inserted") {
 		CHECK(g.insert_node("lol") == true);
@@ -171,7 +183,7 @@ TEST_CASE("INSERT NODE") {
 }
 
 TEST_CASE("INSERT EDGE") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	SECTION("Edge correctly inserted") {
 		CHECK(g.insert_edge("hello", "goodbye", 2) == true);
@@ -180,11 +192,9 @@ TEST_CASE("INSERT EDGE") {
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
 	g.insert_edge("hi", "goodbye", 2);
-
 	SECTION("Edge fails if it exists already") {
 		CHECK(g.insert_edge("hello", "goodbye", 3) == false);
 	}
-
 	SECTION("Edge exception if either node does not exist") {
 		CHECK_THROWS_WITH(g.insert_edge("lol", "hello", 3),
 		                  "Cannot call gdwg::graph<N, E>::weights if src or dst node don't exist in "
@@ -196,7 +206,7 @@ TEST_CASE("INSERT EDGE") {
 }
 
 TEST_CASE("REPLACE NODE") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -206,21 +216,22 @@ TEST_CASE("REPLACE NODE") {
 		CHECK_THROWS_WITH(g.replace_node("lol", "hello"),
 		                  "Cannot call gdwg::graph<N, E>::replace_node on a node that doesn't exist");
 	}
-
 	SECTION("New node already exists") {
 		CHECK(g.replace_node("hello", "hi") == false);
 	}
-
-	SECTION("Successfully replaces node") {
+	SECTION("Successfully replaces node and edges") {
 		CHECK(g.replace_node("hello", "lol") == true);
 		CHECK(g.is_node("lol") == true);
 		CHECK(g.is_node("hello") == false);
-		// EDGE CHECK WITH FIND EDGE
+
+		CHECK(g.find("lol", "goodbye", 2) != g.end());
+		CHECK(g.find("lol", "goodbye", 3) != g.end());
+		CHECK(g.find("lol", "hi", 4) != g.end());
 	}
 }
 
 TEST_CASE("MERGE REPLACE NODE") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -239,7 +250,6 @@ TEST_CASE("MERGE REPLACE NODE") {
 		                  "Cannot call gdwg::graph<N, E>::merge_replace_node on old or new data if "
 		                  "they don't exist in the graph");
 	}
-
 	SECTION("General merging test") {
 		g.merge_replace_node("goodbye", "hello");
 		auto it = g.begin();
@@ -254,7 +264,6 @@ TEST_CASE("MERGE REPLACE NODE") {
 		CHECK(((*it).from == "hello" && (*it).to == "hi" && (*it).weight == 8));
 		CHECK(g.is_node("goodbye") == false);
 	}
-
 	SECTION("Duplicates removed during merge") {
 		g.insert_edge("hello", "hello", 2);
 		g.merge_replace_node("goodbye", "hello");
@@ -266,7 +275,7 @@ TEST_CASE("MERGE REPLACE NODE") {
 }
 
 TEST_CASE("ERASE NODE") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -291,7 +300,7 @@ TEST_CASE("ERASE NODE") {
 }
 
 TEST_CASE("ERASE EDGE") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -343,7 +352,7 @@ TEST_CASE("ERASE EDGE") {
 
 TEST_CASE("CLEAR") {
 	SECTION("Filled graph - Check nodes & edges removed") {
-		auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+		auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 		auto g = gdwg::graph<std::string, int>{list};
 		g.insert_edge("hello", "goodbye", 2);
 		g.insert_edge("hello", "goodbye", 3);
@@ -357,15 +366,26 @@ TEST_CASE("CLEAR") {
 		CHECK(it == g.end());
 	}
 	SECTION("Empty graph") {
-		auto g = gdwg::graph<std::string, int>{};
+		auto const g = gdwg::graph<std::string, int>{};
 		CHECK(g.empty() == true);
 		auto it = g.begin();
 		CHECK(it == g.end());
 	}
 }
 
+TEST_CASE("is_node & empty") {
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto g = gdwg::graph<std::string, int>{list};
+
+	CHECK(g.is_node("hi") == true);
+	CHECK(g.is_node("what") == false);
+	g.clear();
+	CHECK(g.empty() == true);
+	CHECK(g.is_node("hi") == false);
+}
+
 TEST_CASE("Is_Connected") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -381,11 +401,9 @@ TEST_CASE("Is_Connected") {
 		                  "Cannot call gdwg::graph<N, E>::is_connected if src or dst node don't "
 		                  "exist in the graph");
 	}
-
 	SECTION("Edge exists") {
 		CHECK(g.is_connected("hello", "hi") == true);
 	}
-
 	SECTION("Edge doesn't exist") {
 		CHECK(g.is_connected("goodbye", "hi") == false);
 		CHECK(g.is_connected("hi", "hello") == false);
@@ -393,14 +411,14 @@ TEST_CASE("Is_Connected") {
 }
 
 TEST_CASE("Node list") {
-	auto list = std::initializer_list<int>{4, 2, 3, 7};
-	auto g = gdwg::graph<int, std::string>{list};
-	auto v = std::vector{2, 3, 4, 7};
+	auto const list = std::initializer_list<int>{4, 2, 3, 7};
+	auto const g = gdwg::graph<int, std::string>{list};
+	auto const v = std::vector{2, 3, 4, 7};
 	CHECK(g.nodes() == v);
 }
 
 TEST_CASE("Weights") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -409,15 +427,15 @@ TEST_CASE("Weights") {
 	g.insert_edge("goodbye", "goodbye", 5);
 
 	SECTION("Multiple weights") {
-		auto v = std::vector<int>{2, 3};
+		auto const v = std::vector<int>{2, 3};
 		CHECK(g.weights("hello", "goodbye") == v);
 	}
 	SECTION("No weights") {
-		auto v = std::vector<int>{};
+		auto const v = std::vector<int>{};
 		CHECK(g.weights("hello", "hello") == v);
 	}
 	SECTION("Connects to self") {
-		auto v = std::vector<int>{5};
+		auto const v = std::vector<int>{5};
 		CHECK(g.weights("goodbye", "goodbye") == v);
 	}
 
@@ -432,7 +450,7 @@ TEST_CASE("Weights") {
 }
 
 TEST_CASE("Find") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -457,7 +475,7 @@ TEST_CASE("Find") {
 }
 
 TEST_CASE("Connections") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -466,23 +484,23 @@ TEST_CASE("Connections") {
 	g.insert_edge("goodbye", "goodbye", 5);
 
 	SECTION("General check - node has multiple connections") {
-		auto v = std::vector<std::string>{"goodbye", "hi"};
+		auto const v = std::vector<std::string>{"goodbye", "hi"};
 		CHECK(g.connections("hello") == v);
 	}
 	SECTION("Node connected to self") {
-		auto v = std::vector<std::string>{"goodbye", "hello"};
+		auto const v = std::vector<std::string>{"goodbye", "hello"};
 		CHECK(g.connections("goodbye") == v);
 	}
 	SECTION("Node has no connections") {
 		g.insert_node("lol");
-		auto v = std::vector<std::string>{};
+		auto const v = std::vector<std::string>{};
 		CHECK(g.connections("lol") == v);
 	}
 }
 
 TEST_CASE("Iterator accessors - begin, end") {
 	SECTION("Valid graph and begin iterator") {
-		auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+		auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 		auto g = gdwg::graph<std::string, int>{list};
 		g.insert_edge("hello", "goodbye", 2);
 		g.insert_edge("hello", "goodbye", 3);
@@ -494,15 +512,15 @@ TEST_CASE("Iterator accessors - begin, end") {
 		CHECK(((*it).from == "goodbye" && (*it).to == "goodbye" && (*it).weight == 5));
 	}
 	SECTION("Empty graph - begin should == end") {
-		auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
-		auto g = gdwg::graph<std::string, int>{list};
+		auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+		auto const g = gdwg::graph<std::string, int>{list};
 		auto it = g.begin();
 		CHECK(it == g.end());
 	}
 }
 
 TEST_CASE("ITERATOR CONSTRUCTORS") {
-	auto list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
+	auto const list = std::initializer_list<std::string>{"hello", "goodbye", "hi"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("hello", "goodbye", 2);
 	g.insert_edge("hello", "goodbye", 3);
@@ -526,19 +544,17 @@ TEST_CASE("ITERATOR CONSTRUCTORS") {
 }
 
 TEST_CASE("ITERATOR OPERATOR ++") {
-	auto list = std::initializer_list<std::string>{"a", "b", "c"};
+	auto const list = std::initializer_list<std::string>{"a", "b", "c"};
 	auto g = gdwg::graph<std::string, int>{list};
 	g.insert_edge("a", "b", 2);
 	g.insert_edge("a", "a", 3);
 	g.insert_edge("a", "a", 1);
-
 	SECTION("Pre-increment") {
 		auto it = g.begin();
 		CHECK((*it).weight == 1);
 		CHECK((*++it).weight == 3);
 		CHECK((*++it).weight == 2);
 	}
-
 	SECTION("Post-increment") {
 		auto it = g.begin();
 		CHECK((*it).weight == 1);
@@ -547,8 +563,74 @@ TEST_CASE("ITERATOR OPERATOR ++") {
 	}
 }
 
+TEST_CASE("ITERATOR OPERATOR --") {
+	auto const list = std::initializer_list<std::string>{"a", "b", "c"};
+	auto g = gdwg::graph<std::string, int>{list};
+	g.insert_edge("a", "b", 2);
+	g.insert_edge("a", "a", 3);
+	g.insert_edge("a", "a", 1);
+
+	SECTION("Pre-decrement") {
+		auto it = g.begin();
+		it++;
+		it++;
+		it++;
+		CHECK(it == g.end());
+		CHECK((*--it).weight == 2);
+	}
+	SECTION("Post-decrement") {
+		auto it = g.begin();
+		it++;
+		CHECK((*it--).weight == 3);
+	}
+}
+
+TEST_CASE("ITERATOR OPERATOR*") {
+	auto const list = std::initializer_list<std::string>{"a", "b", "c"};
+	auto g = gdwg::graph<std::string, int>{list};
+	g.insert_edge("a", "b", 2);
+	g.insert_edge("a", "a", 3);
+	g.insert_edge("a", "a", 1);
+
+	auto it = g.begin();
+	CHECK((*it).from == "a");
+	CHECK((*it).to == "a");
+	CHECK((*it).weight == 1);
+}
+
+TEST_CASE("ITERATOR OPERATOR ==") {
+	auto const list = std::initializer_list<std::string>{"a", "b", "c"};
+	auto g = gdwg::graph<std::string, int>{list};
+	g.insert_edge("a", "b", 2);
+	g.insert_edge("a", "a", 3);
+	g.insert_edge("a", "a", 1);
+	auto const g2 = g;
+
+	SECTION("Iterators of same graphs pointing to same value element") {
+		auto it = g.begin();
+		auto it2 = g.begin();
+		it++;
+		it2++;
+		CHECK(it == it2);
+	}
+	SECTION("Iterators of same graphs pointing to diff element") {
+		auto it = g.begin();
+		auto it2 = g.begin();
+		it2++;
+		CHECK(it != it2);
+	}
+	SECTION("Iterators of different graphs but pointing to same value element") {
+		CHECK(g.begin() != g2.begin());
+	}
+	SECTION("Empty graph iterators") {
+		auto const g3 = gdwg::graph<std::string, int>{};
+		auto g4 = gdwg::graph<std::string, int>{};
+		CHECK(g3.begin() != g4.begin());
+	}
+}
+
 TEST_CASE("EXTRACTOR") {
-	auto list = std::initializer_list<std::string>{"a", "b", "c"};
+	auto const list = std::initializer_list<std::string>{"a", "b", "c"};
 	auto g = gdwg::graph<std::string, int>{list};
 
 	SECTION("No edge print") {
@@ -594,7 +676,7 @@ e (
 
 	SECTION("Empty graph print") {
 		auto out = std::ostringstream{};
-		auto g2 = gdwg::graph<std::string, int>{};
+		auto const g2 = gdwg::graph<std::string, int>{};
 		out << g2;
 		auto const expected_output = std::string_view(R"()");
 		CHECK(out.str() == expected_output);
