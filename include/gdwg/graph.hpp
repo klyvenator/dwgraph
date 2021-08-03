@@ -80,9 +80,7 @@ namespace gdwg {
 		graph(graph&& other) noexcept
 		: node_list_{std::exchange(other.node_list_, node_list_container{})}
 		, adj_list_{std::exchange(other.adj_list_, adj_list_container{})} {}
-		graph(graph const& other)
-		: node_list_{other.node_list_}
-		, adj_list_{other.adj_list_} {}
+		graph(graph const& other);
 		~graph() = default;
 
 		// Operators
@@ -131,14 +129,14 @@ namespace gdwg {
 
 		// Accessors
 		[[nodiscard]] auto is_node(N const& value) const -> bool;
-		[[nodiscard]] auto empty() -> bool {
+		[[nodiscard]] auto empty() const -> bool {
 			return node_list_.empty();
 		}
-		[[nodiscard]] auto is_connected(N const& src, N const& dst) -> bool;
-		[[nodiscard]] auto nodes() -> std::vector<N>;
-		[[nodiscard]] auto weights(N const& src, N const& dst) -> std::vector<E>;
-		[[nodiscard]] auto find(N const& src, N const& dst, E const& weight) -> iterator;
-		[[nodiscard]] auto connections(N const& src) -> std::vector<N>;
+		[[nodiscard]] auto is_connected(N const& src, N const& dst) const -> bool;
+		[[nodiscard]] auto nodes() const -> std::vector<N>;
+		[[nodiscard]] auto weights(N const& src, N const& dst) const -> std::vector<E>;
+		[[nodiscard]] auto find(N const& src, N const& dst, E const& weight) const -> iterator;
+		[[nodiscard]] auto connections(N const& src) const -> std::vector<N>;
 
 		// Iterator access
 		[[nodiscard]] auto begin() const -> iterator {
@@ -155,10 +153,10 @@ namespace gdwg {
 		node_list_container node_list_{};
 		adj_list_container adj_list_{};
 		// Finds pointer to node heap resource and returns it
-		auto get_node(N const& value) -> std::shared_ptr<N>;
+		auto get_node(N const& value) const -> std::shared_ptr<N>;
 		// Finds pointer to an edge weight resource and returns it (Used to prevent making duplicate
 		// edges)
-		auto get_edge(E const& value) -> std::shared_ptr<E>;
+		auto get_edge(E const& value) const -> std::shared_ptr<E>;
 		// Determines if edge weight already exists as heap resource
 		[[nodiscard]] auto is_edge(E const& value) const -> bool;
 	};
@@ -201,6 +199,20 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
+	graph<N, E>::graph(graph const& other) {
+		for (auto node : other.node_list_) {
+			auto const copy = *node;
+			insert_node(copy);
+		}
+		for (auto tuple : other.adj_list_) {
+			auto const n1 = *std::get<0>(tuple);
+			auto const n2 = *std::get<1>(tuple);
+			auto const n3 = *std::get<2>(tuple);
+			insert_edge(*get_node(n1), *get_node(n2), n3);
+		}
+	}
+
+	template<typename N, typename E>
 	auto graph<N, E>::operator=(graph&& other) noexcept -> graph& {
 		std::swap(node_list_, other.node_list_);
 		std::swap(adj_list_, other.adj_list_);
@@ -212,10 +224,23 @@ namespace gdwg {
 	template<typename N, typename E>
 	// NOLINTNEXTLINE
 	auto graph<N, E>::operator=(graph const& other) -> graph& {
-		auto new_node_list = other.node_list_;
-		auto new_adj_list = other.adj_list_;
-		node_list_ = new_node_list;
-		adj_list_ = new_adj_list;
+		if (*this == other) {
+			return *this;
+		}
+
+		node_list_.clear();
+		adj_list_.clear();
+
+		for (auto node : other.node_list_) {
+			auto copy = *node;
+			insert_node(copy);
+		}
+		for (auto tuple : other.adj_list_) {
+			auto const n1 = *std::get<0>(tuple);
+			auto const n2 = *std::get<1>(tuple);
+			auto const n3 = *std::get<2>(tuple);
+			insert_edge(*get_node(n1), *get_node(n2), n3);
+		}
 		return *this;
 	}
 
@@ -372,7 +397,7 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
-	auto graph<N, E>::get_node(N const& value) -> std::shared_ptr<N> {
+	auto graph<N, E>::get_node(N const& value) const -> std::shared_ptr<N> {
 		for (auto node : node_list_) {
 			if (*node == value) {
 				return node;
@@ -382,7 +407,7 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
-	auto graph<N, E>::get_edge(E const& value) -> std::shared_ptr<E> {
+	auto graph<N, E>::get_edge(E const& value) const -> std::shared_ptr<E> {
 		for (auto tuple : adj_list_) {
 			auto edge = std::get<2>(tuple);
 			if (*edge == value) {
@@ -415,7 +440,7 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
-	[[nodiscard]] auto graph<N, E>::is_connected(N const& src, N const& dst) -> bool {
+	[[nodiscard]] auto graph<N, E>::is_connected(N const& src, N const& dst) const -> bool {
 		if (is_node(src) == false || is_node(dst) == false) {
 			throw std::runtime_error("Cannot call gdwg::graph<N, E>::is_connected if src or dst node "
 			                         "don't exist in the graph");
@@ -429,7 +454,7 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
-	[[nodiscard]] auto graph<N, E>::nodes() -> std::vector<N> {
+	[[nodiscard]] auto graph<N, E>::nodes() const -> std::vector<N> {
 		auto vec = std::vector<N>{};
 		for (auto node : node_list_) {
 			vec.push_back(*node);
@@ -438,7 +463,7 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
-	[[nodiscard]] auto graph<N, E>::weights(N const& src, N const& dst) -> std::vector<E> {
+	[[nodiscard]] auto graph<N, E>::weights(N const& src, N const& dst) const -> std::vector<E> {
 		if (is_node(src) == false || is_node(dst) == false) {
 			throw std::runtime_error("Cannot call gdwg::graph<N, E>::weights if src or dst node don't "
 			                         "exist "
@@ -455,7 +480,7 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
-	[[nodiscard]] auto graph<N, E>::connections(N const& src) -> std::vector<N> {
+	[[nodiscard]] auto graph<N, E>::connections(N const& src) const -> std::vector<N> {
 		if (is_node(src) == false) {
 			throw std::runtime_error("Cannot call gdwg::graph<N, E>::connections if src doesn't exist "
 			                         "in the graph");
@@ -472,7 +497,8 @@ namespace gdwg {
 	}
 
 	template<typename N, typename E>
-	[[nodiscard]] auto graph<N, E>::find(N const& src, N const& dst, E const& weight) -> iterator {
+	[[nodiscard]] auto graph<N, E>::find(N const& src, N const& dst, E const& weight) const
+	   -> iterator {
 		for (auto i = begin(); i != end(); ++i) {
 			if ((*i).from == src && (*i).to == dst && (*i).weight == weight) {
 				return i;
